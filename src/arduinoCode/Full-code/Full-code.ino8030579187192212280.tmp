@@ -25,7 +25,6 @@ int startingDistanceF;
 int startingDistanceS;
 
 int front = 0;
-int side = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -54,10 +53,6 @@ void loop() {
   if(x <= startingDegreeX + 20 && x >= startingDegreeX - 20 && y <= startingDegreeY + 20 && y >= startingDegreeY - 20) {
     Serial.println("At starting position");
   }
-
-  ultrasonic();
-
-  motor();
 }
 
 void compass() {
@@ -89,8 +84,6 @@ void compass() {
 }
 
 void ultrasonic() {
-  front = 0;
-  side = 0;
   for(int i = 0; i < 3; i++) {
     // Clears the trigPin
     digitalWrite(trigPinF, LOW);
@@ -124,19 +117,7 @@ void ultrasonic() {
 
     avg();
   }
-  if(front != 0) {
-    distanceF /= front;
-  }
-  else {
-    distanceF = 0;
-  }
-
-  if(side != 0) {
-    distanceS /= side;
-  }
-  else {
-    distanceS = 0;
-  }
+  distanceF /= front;
 }
 
 void avg() {
@@ -156,21 +137,14 @@ void avg() {
   distanceS = distanceSAvg;
 }
 
-void motor() {
-  
-}
-
 void ini() {
   compass(); // get values for begin value
   
   startingDegreeX = x;
   startingDegreeY = y;
 
-  do {
-    ultrasonic();
+  ultrasonic();
 
-    startingDistanceF = distanceF;
-    startingDistanceS = distanceS;
-  }
-  while(startingDistanceF == 0 && startingDistanceS == 0);
+  startingDistanceF = distanceF;
+  startingDistanceS = distanceS;
 }
