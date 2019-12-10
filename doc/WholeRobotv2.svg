@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.32"
-     inkscape:cx="1350.3455"
-     inkscape:cy="1791.3969"
+     inkscape:zoom="0.64"
+     inkscape:cx="412.84547"
+     inkscape:cy="1228.8969"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -44,7 +44,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -58,32 +58,29 @@
        d="m 8.0391319,94.479263 v 47.499997 h -3 v 33 h 3 v 33 h -3 v 33 h 3 v 33 14.5 H 55.539132 v 3 h 33 v -3 h 32.999998 v 3 h 33 v -3 h 33 14.5 v -47.5 h 3 v -33 h -3 v -33 h 3 v -33 h -3 v -33 -14.499997 h -47.5 v -3 h -33 v 3 H 88.539132 v -3 h -33 v 3 h -33 z"
        id="top_outsideCutPath"
        style="font-size:12px;vector-effect:non-scaling-stroke;fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.11;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none" />
-    <g
-       id="g487">
-      <circle
-         r="11"
-         cy="-98.522324"
-         cx="103.34599"
-         id="path830"
-         style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.11;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <circle
-         r="5.9891195"
-         cy="-44.407951"
-         cx="42.905949"
-         id="path857"
-         style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.13176064;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <circle
-         r="5.9891195"
-         cy="-44.441032"
-         cx="165.82236"
-         id="path859"
-         style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.13176064;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         style="font-size:12px;vector-effect:non-scaling-stroke;fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.11;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
-         id="back_outsideCutPath"
-         d="m 3.3514372,-131.4935 v 33.500001 h 3 v 33 h -3 V -31.4935 H 53.851437 v -2.999999 h 33 v 2.999999 h 33.000003 v -2.999999 h 33 v 2.999999 h 33 17.5 v -33.499999 h -3 v -33 h 3 V -131.4935 h -50.5 v 3 h -33 v -3 H 86.851437 v 3 h -33 v -3 h -33 z"
-         inkscape:connector-curvature="0" />
-    </g>
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.11;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path830"
+       cx="103.34599"
+       cy="-98.522324"
+       r="11" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.13176064;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path857"
+       cx="42.905949"
+       cy="-44.407951"
+       r="5.9891195" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#f70000;stroke-width:0.13176064;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path859"
+       cx="165.82236"
+       cy="-44.441032"
+       r="5.9891195" />
+    <path
+       inkscape:connector-curvature="0"
+       d="m 3.3514372,-131.4935 v 33.500001 h 3 v 33 h -3 V -31.4935 H 53.851437 v -2.999999 h 33 v 2.999999 h 33.000003 v -2.999999 h 33 v 2.999999 h 33 17.5 v -33.499999 h -3 v -33 h 3 V -131.4935 h -50.5 v 3 h -33 v -3 H 86.851437 v 3 h -33 v -3 h -33 z"
+       id="back_outsideCutPath"
+       style="font-size:12px;vector-effect:non-scaling-stroke;fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.11;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none" />
     <path
        inkscape:connector-curvature="0"
        d="m 428.7863,-123.21214 v 47.500007 h -3 v 33 h 3 v 32.9999998 h -3 V 23.287867 h 3 v 33 14.499997 h 47.5 v 3 h 33 v -3 h 33 v 3 h 33 v -3 h 33 14.5 V 23.287867 h 3 V -9.7121332 h -3 V -42.712133 h 3 v -33 h -3 v -32.999997 -14.50001 h -47.5 v -3 h -33 v 3 h -33 v -3 h -33 v 3 h -33 z"
