@@ -1,3 +1,16 @@
+// libraries
+#include <Wire.h> //I2C Arduino Library
+
+// defines
+#define slow 0
+#define medium 150
+#define fast 255
+
+// compass sensor
+// Analog input 4 I2C SDA
+// Analog input 5 I2C SCL
+#define address 0x1E //0011110b, I2C 7bit address of HMC5883
+
 /*
  * compass
  */ 
@@ -9,26 +22,37 @@ int startingDegreeY = -5000;
 /* 
  * 2 ultrasonic
  */
-// defines pins numbers
 const int trigPinF = 3; // Front
 const int echoPinF = 9; // Front
 const int trigPinS = 10; // Side
 const int echoPinS = 11; // Side
 
+/*
+ * Motor
+ */
+const int motor1A = 4; // Barry
+const int motor1B = 5; // Henk
+const int motor2A = 7; // Samson
+const int motor2B = 6; // Gert
+
+
 // defines variables
 long durationF;
-int distanceF;
+int distanceF = 0;
 long durationS;
-int distanceS;
+int distanceS = 0;
 
 int startingDistanceF;
-int startingDistanceS;
+int startingDistanceS = 50;
 
+int distanceFAvg = 0;
+int distanceSAvg = 0;
 int front = 0;
 int side = 0;
 
 void setup() {
   Serial.begin(9600);
+  
   Wire.begin();
   
   //Put the HMC5883 IC into the correct operating mode
@@ -36,12 +60,17 @@ void setup() {
   Wire.write(0x02); //select mode register
   Wire.write(0x00); //continuous measurement mode
   Wire.endTransmission();
-
+  
   // setup pinmode
   pinMode(trigPinF, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPinF, INPUT); // Sets the echoPin as an Input
   pinMode(trigPinS, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPinS, INPUT); // Sets the echoPin as an Input
+
+  pinMode(motor1A, OUTPUT);
+  pinMode(motor1B, OUTPUT);
+  pinMode(motor2A, OUTPUT);
+  pinMode(motor2B, OUTPUT);
 
   ini();
 }
@@ -49,12 +78,14 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  compass();
+  //compass();
 
+  /*
   if(x <= startingDegreeX + 20 && x >= startingDegreeX - 20 && y <= startingDegreeY + 20 && y >= startingDegreeY - 20) {
     Serial.println("At starting position");
   }
-
+  */
+  
   ultrasonic();
 
   motor();
@@ -92,6 +123,7 @@ void ultrasonic() {
   front = 0;
   side = 0;
   for(int i = 0; i < 3; i++) {
+    /*
     // Clears the trigPin
     digitalWrite(trigPinF, LOW);
     delayMicroseconds(2);
@@ -106,7 +138,7 @@ void ultrasonic() {
     // Prints the distance on the Serial Monitor
     Serial.print("DistanceF: ");
     Serial.println(distanceF);
-  
+    */
     // Clears the trigPin
     digitalWrite(trigPinS, LOW);
     delayMicroseconds(2);
@@ -122,55 +154,70 @@ void ultrasonic() {
     Serial.print("DistanceS: ");
     Serial.println(distanceS);
 
-    avg();
-  }
+    //avg();
+  }/*
   if(front != 0) {
-    distanceF /= front;
+    distanceF = distanceFAvg / front;
   }
   else {
-    distanceF = 0;
+    distanceF = startingDistanceF;
   }
 
   if(side != 0) {
-    distanceS /= side;
+    distanceS = distanceSAvg / side;
   }
   else {
-    distanceS = 0;
+    distanceS = startingDistanceS;
   }
+  */
 }
 
 void avg() {
-  int distanceFAvg;
+  /*
   if(distanceF < startingDistanceF + 20) {
     front++;
     distanceFAvg += distanceF;
   }
-
-  int distanceSAvf;
+  */
   if(distanceS < startingDistanceS + 20) {
     side++;
     distanceSAvg += distanceS;
   }
-
-  distanceF = distanceFAvg;
-  distanceS = distanceSAvg;
 }
 
 void motor() {
-  
+  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS + 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+  }
+  else if(distanceS < startingDistanceS - 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, medium);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+  }
+  else if(distanceS > startingDistanceS + 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, medium);
+  }
 }
 
 void ini() {
-  compass(); // get values for begin value
+  //compass(); // get values for begin value
   
-  startingDegreeX = x;
-  startingDegreeY = y;
+  //startingDegreeX = x;
+  //startingDegreeY = y;
 
   do {
     ultrasonic();
 
-    startingDistanceF = distanceF;
-    startingDistanceS = distanceS;
+    //startingDistanceF = distanceF;
+    //startingDistanceS = distanceS;
+    Serial.println("Test");
   }
-  while(startingDistanceF == 0 && startingDistanceS == 0);
+  while(startingDistanceS == 0); //startingDistanceF == 0 && 
 }
