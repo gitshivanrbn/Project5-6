@@ -27,9 +27,7 @@ const int echoPinF = 9; // Front
 const int trigPinS = 10; // Side
 const int echoPinS = 11; // Side
 
-/*
- * Motor
- */
+ 
 const int motor1A = 4; // Barry
 const int motor1B = 5; // Henk
 const int motor2A = 7; // Samson
@@ -42,9 +40,9 @@ int distanceF = 0;
 long durationS;
 int distanceS = 0;
 
-int startingDistanceF;
+int startingDistanceF = 50;
 int startingDistanceS = 50;
-
+   
 int distanceFAvg = 0;
 int distanceSAvg = 0;
 int front = 0;
@@ -123,7 +121,7 @@ void ultrasonic() {
   front = 0;
   side = 0;
   for(int i = 0; i < 3; i++) {
-    /*
+    
     // Clears the trigPin
     digitalWrite(trigPinF, LOW);
     delayMicroseconds(2);
@@ -138,7 +136,7 @@ void ultrasonic() {
     // Prints the distance on the Serial Monitor
     Serial.print("DistanceF: ");
     Serial.println(distanceF);
-    */
+    
     // Clears the trigPin
     digitalWrite(trigPinS, LOW);
     delayMicroseconds(2);
@@ -186,7 +184,7 @@ void avg() {
 }
 
 void motor() {
-  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS + 10) {
+  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
@@ -197,13 +195,13 @@ void motor() {
     analogWrite(motor1B, medium);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
-  }
-  else if(distanceS > startingDistanceS + 10) {
-    analogWrite(motor1A, LOW);
-    analogWrite(motor1B, fast);
-    analogWrite(motor2A, LOW);
-    analogWrite(motor2B, medium);
-  }
+  }    
+//  else if (distanceF <= startingDistanceF){
+//    analogWrite(motor1A,LOW);
+//    analogWrite(motor1B,LOW);
+//    analogWrite(motor2A,LOW);
+//    analogWrite(motor2B,LOW);
+//  }
 }
 
 void ini() {
@@ -219,5 +217,5 @@ void ini() {
     //startingDistanceS = distanceS;
     Serial.println("Test");
   }
-  while(startingDistanceS == 0); //startingDistanceF == 0 && 
+  while(startingDistanceS == 0 && startingDistanceF ==0);  
 }
