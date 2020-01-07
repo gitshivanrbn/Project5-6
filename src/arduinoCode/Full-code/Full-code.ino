@@ -193,55 +193,79 @@ void ultrasonic() {
 }
 
 void avg() {
- 
-  if(distanceF < startingDistanceF + 20) {
-    front++;
-    distanceFAvg += distanceF;
-  }
- 
-  if(distanceS < startingDistanceS + 20) {
-    side++;
-    distanceSAvg += distanceS;
+  for (int i = 0; i < 3; i++){
+    if(distanceF < startingDistanceF + 20) {
+      front++;
+      distanceFAvg += distanceF;
+  
+    }
   }
 
-  distanceS = distanceSAvg/ 3;
+  for (int i = 0; i < 3; i++){
+    if(distanceS < startingDistanceS + 20) {
+      side++;
+      distanceSAvg += distanceS;
+    }
+  }
 
-   if(front != 0) {
-   distanceF = distanceFAvg / front;
+    if(front != 0) {
+    distanceF = distanceFAvg / front;
+
+    Serial.print("DistanceF: ");
+    Serial.println(distanceF);
   }
-  else {
-    distanceF = startingDistanceF;
-  }
+//  else {
+//    distanceF = startingDistanceF;
+//  }
 
   if(side != 0) {
     distanceS = distanceSAvg / side;
+    //Serial.print("DistanceSAvg: ");
+    //Serial.println(distanceSAvg);
   }
-  else {
-    distanceS = startingDistanceS;
-  }
-
+//  else {
+//    distanceS = startingDistanceS;
+//  }
 }
 
 void motor() {
-  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS && distanceF >= startingDistanceF) {
+  //if robot is parallel to the wall and no obstacles at the front
+  if((distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS) && distanceF > startingDistanceF + 10) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }
-  else if(distanceS < startingDistanceS - 10 && distanceF >= startingDistanceF) {
+  //if robot is too close to the wall and no obstacles at the front
+  else if(distanceS < startingDistanceS - 10 && distanceF > startingDistanceF + 10) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, medium);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
-  }    
- else if (distanceF < startingDistanceF){
+  }
+
+  //if robot is too close to the wall and wall curvature in front
+  else if(distanceS < startingDistanceS - 10 && distanceF > startingDistanceF - 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, slow);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+  }
+  
+  //if robot is too far from the wall and no obstacles at the front
+  else if(distanceS > startingDistanceS + 10 && distanceF > startingDistanceF  + 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, medium);
+  }
+
+  
+  //if there is an obstacle    
+  else if (distanceFAvg <= startingDistanceF - 10){
     analogWrite(motor1A,LOW);
     analogWrite(motor1B,LOW);
     analogWrite(motor2A,LOW);
-    analogWrite(motor2B,LOW);
-  }
-}
 
 void ini() {
   compass(); // get values for begin value
