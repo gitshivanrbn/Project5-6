@@ -82,38 +82,32 @@ void loop() {
 
   compass();
 
-  //if(checkAllowed) {
-    if(calcDiv(20) < 0 && startingDegree >= 0 || calcDiv(-20) >= 0 && startingDegree < 0) {
-      if(heading <= calcDiv(20) || heading >= calcDiv(-20)) {
-        Serial.println("At starting position");
-        checkAllowed = false;
-        // verder naar binnen
-      }
-    }
-    else {
-      if(heading <= calcDiv(20) && heading >= calcDiv(-20)) {
-        Serial.println("At starting position");
-        checkAllowed = false;
-        // verder naar binnen
-      }
-    }
-  //}
-  /*
-  else {
-    if(calcDiv(110) < 0 && startingDegree >= 0 || calcDiv(70) >= 0 && startingDegree < 0) {
-      if(heading <= calcDiv(110) || heading >= calcDiv(70)) {
-        Serial.println("Reverse");
-        checkAllowed = true;
-      }
-    }
-    else {
-      if(heading <= calcDiv(110) && heading >= calcDiv(70)) {
-        Serial.println("Reverse");
-        checkAllowed = true;
-      }
+  if(calcDiv(20) < 0) {
+    if(heading <= calcDiv(20) && heading >= calcDiv(-20)) {
+      Serial.println("At starting position");
+      checkAllowed = false;
     }
   }
-  */
+
+  // 
+  
+  else if(calcDiv(-20) >= 0 ) {
+    if(heading <= calcDiv(20) && heading >= calcDiv(-20)) {
+      Serial.println("At starting position");
+      checkAllowed = false;
+    }
+    
+  }
+  
+  if(heading <= calcDiv() && heading >= calcDiv()) {
+    checkAllowed = true;
+  }
+
+  if(checkAllowed) {
+    
+  }
+
+  // 170 + 20 -> -170
 
   //motor();
 }
@@ -143,10 +137,10 @@ void compass() {
 
 int calcDiv(int num) {
   if(startingDegree + num > 180) {
-    return -180 + (startingDegree + num - 180);
+    return -180 + (startingDegree + num - 180)
   }
   else if(startingDegree + num < -180) {
-    return 180 + (startingDegree + num + 180);
+    return 180 + (startingDegree + num + 180)
   }
   else {
     return startingDegree + num;
