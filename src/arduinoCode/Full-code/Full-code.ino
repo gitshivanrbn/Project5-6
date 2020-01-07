@@ -7,8 +7,8 @@
 #define fast 255
 
 // compass sensor
-// Analog input 4 I2C SDA
-// Analog input 5 I2C SCL
+ //Analog input 4 I2C SDA
+ //Analog input 5 I2C SCL
 #define address 0x1E //0011110b, I2C 7bit address of HMC5883
 
 /*
@@ -19,15 +19,17 @@ int x,y,z; //triple axis data
 int startingDegreeX = -5000;
 int startingDegreeY = -5000;
 
+bool checkAllowed = false;
+
 /* 
  * 2 ultrasonic
  */
-const int trigPinF = 3; // Front
-const int echoPinF = 9; // Front
-const int trigPinS = 10; // Side
-const int echoPinS = 11; // Side
+const int trigPinS = 3; // Front
+const int echoPinS = 9; // Front
+const int trigPinF = 10; // Side
+const int echoPinF = 11; // Side
 
- 
+ //links
 const int motor1A = 4; // Barry
 const int motor1B = 5; // Henk
 const int motor2A = 7; // Samson
@@ -76,15 +78,21 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //compass();
-
-  /*
-  if(x <= startingDegreeX + 20 && x >= startingDegreeX - 20 && y <= startingDegreeY + 20 && y >= startingDegreeY - 20) {
-    Serial.println("At starting position");
-  }
-  */
-  
   ultrasonic();
+
+  compass();
+  // 350 +200 = 550 maar 360 is max, dus als > 360 graden dan 350 + (10) = (200 - 10)
+  //andere optie % 360 
+  if(x <= startingDegreeX + 200 && x >= startingDegreeX - 20 && y <= startingDegreeY + 20 && y >= startingDegreeY - 20) {
+    checkAllowed = true;
+  }
+
+  if(checkAllowed) {
+    if(x <= (startingDegreeX + 20) % 360 && x >= (startingDegreeX - 20) % 360 && y <= (startingDegreeY + 20) % 360 && y >= (startingDegreeY - 20) % 360) {
+      Serial.println("At starting position");
+      checkAllowed = false;
+    }
+  }
 
   motor();
 }
@@ -117,11 +125,18 @@ void compass() {
   Serial.println(startingDegreeY);
 }
 
+int calcDiv(int num) {
+  //startingdegree & operator
+  if (startingDegreeX + num < 0){
+     
+  }
+}
+
 void ultrasonic() {
   front = 0;
   side = 0;
   for(int i = 0; i < 3; i++) {
-    
+      
     // Clears the trigPin
     digitalWrite(trigPinF, LOW);
     delayMicroseconds(2);
@@ -139,7 +154,7 @@ void ultrasonic() {
     
     // Clears the trigPin
     digitalWrite(trigPinS, LOW);
-    delayMicroseconds(2);
+    delayMicroseconds(2)  ;
     // Sets the trigPin on HIGH state for 10 micro seconds
     digitalWrite(trigPinS, HIGH);
     delayMicroseconds(10);
@@ -152,10 +167,26 @@ void ultrasonic() {
     Serial.print("DistanceS: ");
     Serial.println(distanceS);
 
-    //avg();
-  }/*
-  if(front != 0) {
-    distanceF = distanceFAvg / front;
+  }
+  avg();
+}
+
+void avg() {
+ 
+  if(distanceF < startingDistanceF + 20) {
+    front++;
+    distanceFAvg += distanceF;
+  }
+ 
+  if(distanceS < startingDistanceS + 20) {
+    side++;
+    distanceSAvg += distanceS;
+  }
+
+  distanceS = distanceSAvg/ 3;
+
+   if(front != 0) {
+   distanceF = distanceFAvg / front;
   }
   else {
     distanceF = startingDistanceF;
@@ -167,48 +198,34 @@ void ultrasonic() {
   else {
     distanceS = startingDistanceS;
   }
-  */
-}
 
-void avg() {
-  /*
-  if(distanceF < startingDistanceF + 20) {
-    front++;
-    distanceFAvg += distanceF;
-  }
-  */
-  if(distanceS < startingDistanceS + 20) {
-    side++;
-    distanceSAvg += distanceS;
-  }
 }
 
 void motor() {
-  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS) {
+  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS && distanceF >= startingDistanceF) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }
-  else if(distanceS < startingDistanceS - 10) {
+  else if(distanceS < startingDistanceS - 10 && distanceF >= startingDistanceF) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, medium);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }    
-//  else if (distanceF <= startingDistanceF){
-//    analogWrite(motor1A,LOW);
-//    analogWrite(motor1B,LOW);
-//    analogWrite(motor2A,LOW);
-//    analogWrite(motor2B,LOW);
-//  }
+ else if (distanceF < startingDistanceF){
+    analogWrite(motor1A,LOW);
+    analogWrite(motor1B,LOW);
+    analogWrite(motor2A,LOW);
+    analogWrite(motor2B,LOW);
+  }
 }
 
 void ini() {
-  //compass(); // get values for begin value
-  
-  //startingDegreeX = x;
-  //startingDegreeY = y;
+  compass(); // get values for begin value
+  startingDegreeX = x;
+  startingDegreeY = y;
 
   do {
     ultrasonic();
