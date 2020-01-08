@@ -44,6 +44,9 @@ int distanceS = 0;
 
 int startingDistanceF = 50;
 int startingDistanceS = 50;
+
+int diverDistanceF;
+int diverDistanceS;
    
 int distanceFAvg = 0;
 int distanceSAvg = 0;
@@ -78,16 +81,18 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //ultrasonic();
+  ultrasonic();
 
   compass();
 
-  //if(checkAllowed) {
+  if(checkAllowed) {
     if(calcDiv(20) < 0 && startingDegree >= 0 || calcDiv(-20) >= 0 && startingDegree < 0) {
       if(heading <= calcDiv(20) || heading >= calcDiv(-20)) {
         Serial.println("At starting position");
         checkAllowed = false;
         // verder naar binnen
+        startingDistanceS += 50;
+        Serial.println(startingDistanceS);
       }
     }
     else {
@@ -95,13 +100,14 @@ void loop() {
         Serial.println("At starting position");
         checkAllowed = false;
         // verder naar binnen
+        startingDistanceS += 50;
+        Serial.println(startingDistanceS);
       }
     }
-  //}
-  /*
+  }
   else {
     if(calcDiv(110) < 0 && startingDegree >= 0 || calcDiv(70) >= 0 && startingDegree < 0) {
-      if(heading <= calcDiv(110) || heading >= calcDiv(70)) {
+      if(heading <= calcDiv(110) && heading >= calcDiv(70)) {
         Serial.println("Reverse");
         checkAllowed = true;
       }
@@ -113,9 +119,9 @@ void loop() {
       }
     }
   }
-  */
+  
 
-  //motor();
+  motor();
 }
 
 void compass() {
@@ -138,7 +144,7 @@ void compass() {
   //Print out values of each axis
 
   heading = atan2(z, x) * 180 / PI;
-  Serial.println(heading);
+  //Serial.println(heading);
 }
 
 int calcDiv(int num) {
@@ -223,19 +229,25 @@ void avg() {
 }
 
 void motor() {
-  if(distanceS >= startingDistanceS - 10 && distanceS <= startingDistanceS && distanceF >= startingDistanceF) {
+  if(distanceS >= diverDistanceS - 10 && distanceS <= diverDistanceS) { // Foward in range of starting distance //  && distanceF >= startingDistanceF
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }
-  else if(distanceS < startingDistanceS - 10 && distanceF >= startingDistanceF) {
+  else if(distanceS < diverDistanceS - 10) { // Turn  // && distanceF >= startingDistanceF
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, medium);
+  }    
+  else if(distanceS > diverDistanceS + 10) { // Turn
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, medium);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
-  }    
- else if (distanceF < startingDistanceF){
+  }
+  else if(distanceF < startingDistanceF) { // Stop
     analogWrite(motor1A,LOW);
     analogWrite(motor1B,LOW);
     analogWrite(motor2A,LOW);
@@ -254,5 +266,8 @@ void ini() {
     //startingDistanceS = distanceS;
     Serial.println("Test");
   }
-  while(startingDistanceS == 0 && startingDistanceF ==0);  
+  while(startingDistanceS == 0 && startingDistanceF ==0); 
+  diverDistanceF = startingDistanceF; 
+  diverDistanceS = startingDistanceS; 
+  
 }
