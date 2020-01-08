@@ -91,7 +91,7 @@ void loop() {
         Serial.println("At starting position");
         checkAllowed = false;
         // verder naar binnen
-        startingDistanceS += 50;
+        diverDistanceS += 50;
         Serial.println(startingDistanceS);
       }
     }
@@ -100,7 +100,7 @@ void loop() {
         Serial.println("At starting position");
         checkAllowed = false;
         // verder naar binnen
-        startingDistanceS += 50;
+        diverDistanceS += 50;
         Serial.println(startingDistanceS);
       }
     }
