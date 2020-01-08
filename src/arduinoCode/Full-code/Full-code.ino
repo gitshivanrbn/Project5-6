@@ -160,9 +160,10 @@ int calcDiv(int num) {
 }
 
 void ultrasonic() {
+  distanceSAvg = 0;
   front = 0;
   side = 0;
-  for(int i = 0; i < 3; i++) {
+
       
     // Clears the trigPin
     digitalWrite(trigPinF, LOW);
@@ -176,8 +177,8 @@ void ultrasonic() {
     // Calculating the distance
     distanceF = durationF*0.034/2;
     // Prints the distance on the Serial Monitor
-    Serial.print("DistanceF: ");
-    Serial.println(distanceF);
+    //Serial.print("DistanceF: ");
+    //Serial.println(distanceF);
     
     // Clears the trigPin
     digitalWrite(trigPinS, LOW);
@@ -191,10 +192,9 @@ void ultrasonic() {
     // Calculating the distance
     distanceS = durationS*0.034/2;
     // Prints the distance on the Serial Monitor
-    Serial.print("DistanceS: ");
-    Serial.println(distanceS);
+    //Serial.print("DistanceS: ");
+    //Serial.println(distanceS);
 
-  }
   avg();
 }
 
@@ -217,8 +217,8 @@ void avg() {
     if(front != 0) {
     distanceF = distanceFAvg / front;
 
-    Serial.print("DistanceF: ");
-    Serial.println(distanceF);
+    //Serial.print("DistanceF: ");
+    //Serial.println(distanceF);
   }
 //  else {
 //    distanceF = startingDistanceF;
@@ -226,8 +226,8 @@ void avg() {
 
   if(side != 0) {
     distanceS = distanceSAvg / side;
-    //Serial.print("DistanceSAvg: ");
-    //Serial.println(distanceSAvg);
+    Serial.print("DistanceS: ");
+    Serial.println(distanceS);
   }
 //  else {
 //    distanceS = startingDistanceS;
@@ -236,14 +236,14 @@ void avg() {
 
 void motor() {
   //if robot is parallel to the wall and no obstacles at the front
-  if(distanceS >= diverDistanceS - 3 && distanceS <= diverDistanceS + 3) {
+  if(distanceS >= diverDistanceS - 5 && distanceS <= diverDistanceS + 5) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }
   //if robot is too far from the wall
-  else if(distanceS > diverDistanceS + 10) { // Turn 
+  else if(distanceS > diverDistanceS + 5) { // Turn 
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
