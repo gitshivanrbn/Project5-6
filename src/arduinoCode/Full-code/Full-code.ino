@@ -49,8 +49,8 @@ long durationS;
 int distanceS = 0;
 
 // distances 
-int startingDistanceF = 50;
-int startingDistanceS = 30;
+int startingDistanceF = 200;
+int startingDistanceS = 200;
 
 int diverDistanceF;
 int diverDistanceS;
@@ -84,6 +84,8 @@ void setup() {
 
   pinMode(reedSwitch, INPUT);
 
+  Serial.println("reset");
+
   ini();
 }
 
@@ -97,12 +99,13 @@ void loop() {
   compass();
 
   roundBath();
-  
-  if(!distanceS > startingDistanceS/2) {
+  if(!(distanceS > startingDistanceS/2)) {
+    Serial.println("Motor");
     motor();
   }
   else {
     stopSequence();
+    Serial.println("Stop");
   }
 }
 
@@ -123,10 +126,10 @@ void compass() {
     y |= Wire.read(); //Y lsb
   }
   
-  heading = atan2(z, x) * 180 / PI;
+  heading = atan2(z, x) * 180 / PI; // calculate heading direction in degree (-180 , 180)
 }
 
-int calcDiv(int num) {
+int calcDiv(int num) { // calculate from -180 to +180
   if(startingDegree + num > 180) {
     return -180 + (startingDegree + num - 180);
   }
@@ -138,7 +141,7 @@ int calcDiv(int num) {
   }
 }
 
-void roundBath() {
+void roundBath() { // pathfinding for a round bath
   if(checkAllowed) {
     if(calcDiv(20) < 0 && startingDegree >= 0 || calcDiv(-20) >= 0 && startingDegree < 0) {
       if(heading <= calcDiv(20) || heading >= calcDiv(-20)) {
@@ -175,7 +178,7 @@ void roundBath() {
   }
 }
 
-void ultrasonic() {
+void ultrasonic() { // reading ultrasonic
   distanceSAvg = 0;
   front = 0;
   side = 0;
@@ -193,8 +196,6 @@ void ultrasonic() {
     // Calculating the distance
     distanceF = durationF*0.034/2;
     // Prints the distance on the Serial Monitor
-    //Serial.print("DistanceF: ");
-    //Serial.println(distanceF);
     
     // Clears the trigPin
     digitalWrite(trigPinS, LOW);
@@ -208,13 +209,11 @@ void ultrasonic() {
     // Calculating the distance
     distanceS = durationS*0.034/2;
     // Prints the distance on the Serial Monitor
-    //Serial.print("DistanceS: ");
-    //Serial.println(distanceS);
 
-  avg();
+    avg(); // avarage values
 }
 
-void avg() {
+void avg() { // avarage values
   for (int i = 0; i < 3; i++){
     if(distanceF < startingDistanceF + 20) {
       front++;
@@ -230,7 +229,7 @@ void avg() {
     }
   }
 
-    if(front != 0) {
+  if(front != 0) {
     distanceF = distanceFAvg / front;
 
     //Serial.print("DistanceF: ");
@@ -259,7 +258,7 @@ void motor() {
     analogWrite(motor2B, fast);
   }
   //if robot is too far from the wall
-  else if(distanceS > diverDistanceS + 5) { // Turn 
+  else if(distanceS > diverDistanceS + 5) {
     analogWrite(motor1A, LOW);
     analogWrite(motor1B, fast);
     analogWrite(motor2A, LOW);
@@ -279,9 +278,12 @@ void motor() {
 void ini() {
   do {
     reedState = digitalRead(reedSwitch); // read reed switch
-  } while(!reedState);
+    Serial.println("switch");
+  } while(reedState == 1);
 
-  delay(10000);
+  //delay(10000); // wait for user to place in right spot
+
+  // indicator light???
   
   compass(); // get values for begin value
   startingDegree = heading;
@@ -289,21 +291,23 @@ void ini() {
   do {
     ultrasonic();
 
-    //startingDistanceF = distanceF;
+    //startingDistanceF = distanceF; ???
     //startingDistanceS = distanceS;
     Serial.println("Test");
   }
   while(startingDistanceS == 0 && startingDistanceF ==0); 
-  diverDistanceF = startingDistanceF; 
-  diverDistanceS = startingDistanceS; 
+  diverDistanceF = 25; 
+  diverDistanceS = 25; 
 }
 
 void stopSequence() {
+  Serial.println("f");
+  analogWrite(motor1A, LOW);
+  analogWrite(motor1B, fast);
+  analogWrite(motor2A, LOW);
+  analogWrite(motor2B, fast);
   while(distanceF > 25) {
-    analogWrite(motor1A, LOW);
-    analogWrite(motor1B, fast);
-    analogWrite(motor2A, LOW);
-    analogWrite(motor2B, fast);
+    ultrasonic();
   }
   
   analogWrite(motor1A, LOW);
