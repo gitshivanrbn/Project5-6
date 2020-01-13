@@ -12,6 +12,12 @@
 #define address 0x1E //0011110b, I2C 7bit address of HMC5883
 
 /*
+ * startup
+ */
+const int reedSwitch = 8;
+int reedState = 0;
+
+/*
  * compass
  */ 
 int x,y,z; //triple axis data
@@ -29,11 +35,11 @@ const int echoPinS = 9; // Front
 const int trigPinF = 10; // Side
 const int echoPinF = 11; // Side
 
- //links
-const int motor1A = 4; // Barry
-const int motor1B = 5; // Henk
-const int motor2A = 7; // Samson
-const int motor2B = 6; // Gert
+//links
+const int motor1A = 4; // 
+const int motor1B = 5; // 
+const int motor2A = 7; // 
+const int motor2B = 6; // 
 
 
 // defines variables
@@ -42,6 +48,7 @@ int distanceF = 0;
 long durationS;
 int distanceS = 0;
 
+// distances 
 int startingDistanceF = 50;
 int startingDistanceS = 30;
 
@@ -75,16 +82,63 @@ void setup() {
   pinMode(motor2A, OUTPUT);
   pinMode(motor2B, OUTPUT);
 
+  pinMode(reedSwitch, INPUT);
+
   ini();
 }
 
+void(* resetFunc) (void) = 0; // declare reset function @ address 0
+
 void loop() {
   // put your main code here, to run repeatedly:
-
+  
   ultrasonic();
 
   compass();
 
+  roundBath();
+  
+  if(!distanceS > startingDistanceS/2) {
+    motor();
+  }
+  else {
+    stopSequence();
+  }
+}
+
+void compass() {
+  //Tell the HMC5883 where to begin reading data
+  Wire.beginTransmission(address);
+  Wire.write(0x03); //select register 3, X MSB register
+  Wire.endTransmission();
+  
+  //Read data from each axis, 2 registers per axis
+  Wire.requestFrom(address, 6);
+  if(6<=Wire.available()){
+    x = Wire.read()<<8; //X msb
+    x |= Wire.read(); //X lsb
+    z = Wire.read()<<8; //Z msb
+    z |= Wire.read(); //Z lsb
+    y = Wire.read()<<8; //Y msb
+    y |= Wire.read(); //Y lsb
+  }
+  
+  heading = atan2(z, x) * 180 / PI;
+}
+
+int calcDiv(int num) {
+  if(startingDegree + num > 180) {
+    return -180 + (startingDegree + num - 180);
+  }
+  else if(startingDegree + num < -180) {
+    return 180 + (startingDegree + num + 180);
+  }
+  else {
+    return startingDegree + num;
+  }
+}
+
+void roundBath() {
   if(checkAllowed) {
     if(calcDiv(20) < 0 && startingDegree >= 0 || calcDiv(-20) >= 0 && startingDegree < 0) {
       if(heading <= calcDiv(20) || heading >= calcDiv(-20)) {
@@ -118,44 +172,6 @@ void loop() {
         checkAllowed = true;
       }
     }
-  }
-    
-  
-  motor();
-}
-
-void compass() {
-  //Tell the HMC5883 where to begin reading data
-  Wire.beginTransmission(address);
-  Wire.write(0x03); //select register 3, X MSB register
-  Wire.endTransmission();
-  
-  //Read data from each axis, 2 registers per axis
-  Wire.requestFrom(address, 6);
-  if(6<=Wire.available()){
-    x = Wire.read()<<8; //X msb
-    x |= Wire.read(); //X lsb
-    z = Wire.read()<<8; //Z msb
-    z |= Wire.read(); //Z lsb
-    y = Wire.read()<<8; //Y msb
-    y |= Wire.read(); //Y lsb
-  }
-  
-  //Print out values of each axis
-
-  heading = atan2(z, x) * 180 / PI;
-  //Serial.println(heading);
-}
-
-int calcDiv(int num) {
-  if(startingDegree + num > 180) {
-    return -180 + (startingDegree + num - 180);
-  }
-  else if(startingDegree + num < -180) {
-    return 180 + (startingDegree + num + 180);
-  }
-  else {
-    return startingDegree + num;
   }
 }
 
@@ -261,6 +277,12 @@ void motor() {
 
 
 void ini() {
+  do {
+    reedState = digitalRead(reedSwitch); // read reed switch
+  } while(!reedState);
+
+  delay(10000);
+  
   compass(); // get values for begin value
   startingDegree = heading;
 
@@ -274,4 +296,20 @@ void ini() {
   while(startingDistanceS == 0 && startingDistanceF ==0); 
   diverDistanceF = startingDistanceF; 
   diverDistanceS = startingDistanceS; 
+}
+
+void stopSequence() {
+  while(distanceF > 25) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+  }
+  
+  analogWrite(motor1A, LOW);
+  analogWrite(motor1B, LOW);
+  analogWrite(motor2A, LOW);
+  analogWrite(motor2B, LOW);
+
+  resetFunc();  //call reset
 }
