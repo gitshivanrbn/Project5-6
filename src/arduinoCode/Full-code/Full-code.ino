@@ -3,7 +3,7 @@
 
 // defines
 #define slow 0
-#define medium 150
+#define medium 175
 #define fast 255
 
 // compass sensor
@@ -50,7 +50,7 @@ int distanceS = 0;
 
 // distances 
 int startingDistanceF = 200;
-int startingDistanceS = 200;
+int startingDistanceS = 10000;
 
 int diverDistanceF;
 int diverDistanceS;
@@ -100,12 +100,12 @@ void loop() {
 
   roundBath();
   if(!(distanceS > startingDistanceS/2)) {
-    Serial.println("Motor");
+    //Serial.println("Motor");
     motor();
   }
   else {
-    stopSequence();
-    Serial.println("Stop");
+    //stopSequence();
+    //Serial.println("Stop");
   }
 }
 
@@ -180,6 +180,7 @@ void roundBath() { // pathfinding for a round bath
 
 void ultrasonic() { // reading ultrasonic
   distanceSAvg = 0;
+  distanceFAvg = 0;
   front = 0;
   side = 0;
 
@@ -223,7 +224,7 @@ void avg() { // avarage values
   }
 
   for (int i = 0; i < 3; i++){
-    if(distanceS < startingDistanceS + 20) {
+    if(distanceS < diverDistanceS + 30) {
       side++;
       distanceSAvg += distanceS;
     }
@@ -241,8 +242,8 @@ void avg() { // avarage values
 
   if(side != 0) {
     distanceS = distanceSAvg / side;
-    Serial.print("DistanceS: ");
-    Serial.println(distanceS);
+    //Serial.print("DistanceS: ");
+    //Serial.println(distanceS);
   }
 //  else {
 //    distanceS = startingDistanceS;
@@ -257,6 +258,18 @@ void motor() {
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, fast);
   }
+  else if(distanceS > diverDistanceS + 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, slow);
+    delay(100);
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, fast);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, medium);
+    delay(20);
+  }    
   //if robot is too far from the wall
   else if(distanceS > diverDistanceS + 5) {
     analogWrite(motor1A, LOW);
@@ -264,7 +277,18 @@ void motor() {
     analogWrite(motor2A, LOW);
     analogWrite(motor2B, medium);
   }    
-
+  else if(distanceS > diverDistanceS - 10) {
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, slow);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+    delay(100);
+    analogWrite(motor1A, LOW);
+    analogWrite(motor1B, medium);
+    analogWrite(motor2A, LOW);
+    analogWrite(motor2B, fast);
+    delay(20);
+  }    
   //if robot is too close to the wall and no obstacles at the front
   else if(distanceS < diverDistanceS -5) {
     analogWrite(motor1A, LOW);
@@ -278,7 +302,7 @@ void motor() {
 void ini() {
   do {
     reedState = digitalRead(reedSwitch); // read reed switch
-    Serial.println("switch");
+    //Serial.println("switch");
   } while(reedState == 1);
 
   //delay(10000); // wait for user to place in right spot
@@ -293,20 +317,20 @@ void ini() {
 
     //startingDistanceF = distanceF; ???
     //startingDistanceS = distanceS;
-    Serial.println("Test");
+    //Serial.println("Test");
   }
   while(startingDistanceS == 0 && startingDistanceF ==0); 
-  diverDistanceF = 25; 
-  diverDistanceS = 25; 
+  diverDistanceF = 40; 
+  diverDistanceS = 40; 
 }
 
 void stopSequence() {
-  Serial.println("f");
   analogWrite(motor1A, LOW);
   analogWrite(motor1B, fast);
   analogWrite(motor2A, LOW);
   analogWrite(motor2B, fast);
   while(distanceF > 25) {
+    Serial.println(distanceF);
     ultrasonic();
   }
   
