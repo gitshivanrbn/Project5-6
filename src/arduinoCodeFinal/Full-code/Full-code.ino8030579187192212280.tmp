@@ -1,0 +1,150 @@
+/*
+ * compass
+ */ 
+int x,y,z; //triple axis data
+
+int startingDegreeX = -5000;
+int startingDegreeY = -5000;
+
+/* 
+ * 2 ultrasonic
+ */
+// defines pins numbers
+const int trigPinF = 3; // Front
+const int echoPinF = 9; // Front
+const int trigPinS = 10; // Side
+const int echoPinS = 11; // Side
+
+// defines variables
+long durationF;
+int distanceF;
+long durationS;
+int distanceS;
+
+int startingDistanceF;
+int startingDistanceS;
+
+int front = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  
+  //Put the HMC5883 IC into the correct operating mode
+  Wire.beginTransmission(address); //open communication with HMC5883
+  Wire.write(0x02); //select mode register
+  Wire.write(0x00); //continuous measurement mode
+  Wire.endTransmission();
+
+  // setup pinmode
+  pinMode(trigPinF, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinF, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPinS, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinS, INPUT); // Sets the echoPin as an Input
+
+  ini();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  compass();
+
+  if(x <= startingDegreeX + 20 && x >= startingDegreeX - 20 && y <= startingDegreeY + 20 && y >= startingDegreeY - 20) {
+    Serial.println("At starting position");
+  }
+}
+
+void compass() {
+  //Tell the HMC5883 where to begin reading data
+  Wire.beginTransmission(address);
+  Wire.write(0x03); //select register 3, X MSB register
+  Wire.endTransmission();
+  
+  //Read data from each axis, 2 registers per axis
+  Wire.requestFrom(address, 6);
+  if(6<=Wire.available()){
+    x = Wire.read()<<8; //X msb
+    x |= Wire.read(); //X lsb
+    z = Wire.read()<<8; //Z msb
+    z |= Wire.read(); //Z lsb
+    y = Wire.read()<<8; //Y msb
+    y |= Wire.read(); //Y lsb
+  }
+  
+  //Print out values of each axis
+  Serial.print("x: ");
+  Serial.print(x);
+  Serial.print("\t");
+  Serial.println(startingDegreeX);
+  Serial.print("y: ");
+  Serial.print(y);
+  Serial.print("\t");
+  Serial.println(startingDegreeY);
+}
+
+void ultrasonic() {
+  for(int i = 0; i < 3; i++) {
+    // Clears the trigPin
+    digitalWrite(trigPinF, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPinF, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPinF, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    durationF = pulseIn(echoPinF, HIGH);
+    // Calculating the distance
+    distanceF = durationF*0.034/2;
+    // Prints the distance on the Serial Monitor
+    Serial.print("DistanceF: ");
+    Serial.println(distanceF);
+  
+    // Clears the trigPin
+    digitalWrite(trigPinS, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPinS, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPinS, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    durationS = pulseIn(echoPinS, HIGH);
+    // Calculating the distance
+    distanceS = durationS*0.034/2;
+    // Prints the distance on the Serial Monitor
+    Serial.print("DistanceS: ");
+    Serial.println(distanceS);
+
+    avg();
+  }
+  distanceF /= front;
+}
+
+void avg() {
+  int distanceFAvg;
+  if(distanceF < startingDistanceF + 20) {
+    front++;
+    distanceFAvg += distanceF;
+  }
+
+  int distanceSAvf;
+  if(distanceS < startingDistanceS + 20) {
+    side++;
+    distanceSAvg += distanceS;
+  }
+
+  distanceF = distanceFAvg;
+  distanceS = distanceSAvg;
+}
+
+void ini() {
+  compass(); // get values for begin value
+  
+  startingDegreeX = x;
+  startingDegreeY = y;
+
+  ultrasonic();
+
+  startingDistanceF = distanceF;
+  startingDistanceS = distanceS;
+}
